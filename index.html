@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mind Blow</title>
+<title>Mind Blow v4</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -36,6 +36,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  margin-bottom:10px;
 }
 
 .level-badge{
@@ -52,7 +53,7 @@ body{
 }
 
 .question{
-  margin:25px 0;
+  margin:20px 0;
   font-size:22px;
   text-align:center;
   color:#2d3436;
@@ -83,6 +84,7 @@ button{
 
 .ok-btn{background:#00b894;color:white;}
 .hint-btn{background:#ffeaa7;color:#2d3436;}
+.reset-btn{background:#d63031;color:white;}
 
 .footer{
   margin-top:15px;
@@ -100,7 +102,9 @@ button{
 <audio id="wrong" src="https://www.soundjay.com/button/sounds/button-10.mp3"></audio>
 
 <div class="game-card">
+
   <div class="top-bar">
+    <button class="reset-btn" onclick="resetProgress()">🔄 Reset Progress</button>
     <div class="level-badge">Level <span id="lvl">1</span></div>
     <div class="stars" id="stars">⭐⭐⭐</div>
   </div>
@@ -121,39 +125,52 @@ button{
 let level = Number(localStorage.getItem("level")) || 1;
 let stars = Number(localStorage.getItem("stars")) || 3;
 const maxLevel = 150;
+let firstLoad = true; // For first UI view
 
 function load(){
   document.getElementById("lvl").innerText = level;
   document.getElementById("stars").innerText = "⭐".repeat(stars);
   document.getElementById("ans").value = "";
-  document.getElementById("q").innerText = "";
+  const qEl = document.getElementById("q");
 
-  if(level > maxLevel){
-    document.getElementById("q").innerText = "🎉 You are a Brain Master!";
+  // Show first UI if page just loaded
+  if(firstLoad){
+    qEl.innerText = "🎮 Welcome to Mind Blow! Try to solve tricky puzzles!";
+    firstLoad = false;
     return;
   }
 
+  if(level > maxLevel){
+    qEl.innerText = "🎉 You are a Brain Master!";
+    return;
+  }
+
+  // Tricky hard levels from level 1
   if(level % 20 === 0){
-    document.getElementById("q").innerText = "Don't touch anything for 3 sec!";
+    qEl.innerText = "Don't touch anything for 3 sec!";
     setTimeout(pass, 3000);
   }
   else if(level % 15 === 0){
-    document.getElementById("q").innerHTML = `Tap the word <span onclick='pass()' style="color:#d63031;cursor:pointer;">CLICK ME</span>`;
+    qEl.innerHTML = `Tap the word <span onclick='pass()' style="color:#d63031;cursor:pointer;">CLICK ME</span>`;
   }
   else if(level % 10 === 0){
-    document.getElementById("q").innerText = "Type a wrong answer!";
+    qEl.innerText = "Type a wrong answer!";
+  }
+  else if(level % 7 === 0){
+    qEl.innerText = `Drag the pink box to green box`; // Implement drag later
   }
   else{
-    document.getElementById("q").innerText = `What is ${level}+${level*2}?`;
+    qEl.innerText = `What is ${level}+${level*2}?`;
   }
 }
 
 function check(){
-  let ans = document.getElementById("ans").value;
-  if(level % 10 === 0 && ans != level*2){
+  let ansValue = document.getElementById("ans").value;
+  if(level % 10 === 0 && ansValue != level*2){
     pass();
     document.getElementById("correct").play();
-  } else if(ans == level*2){
+  }
+  else if(ansValue == level*2){
     pass();
     document.getElementById("correct").play();
   } else {
@@ -170,7 +187,7 @@ function hint(){
   if(stars > 0){
     stars--;
     localStorage.setItem("stars", stars);
-    alert("Think differently 😏");
+    alert("Think outside the box 😏");
     load();
   } else alert("No hints left!");
 }
@@ -182,7 +199,19 @@ function pass(){
   load();
 }
 
-load();
+function resetProgress(){
+  localStorage.removeItem("level");
+  localStorage.removeItem("stars");
+  level = 1;
+  stars = 3;
+  firstLoad = true;
+  load();
+  alert("✅ Progress reset!");
+}
+
+// Show first UI on load
+window.onload = load;
+
 </script>
 
 </body>
