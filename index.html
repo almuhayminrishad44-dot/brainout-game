@@ -1,3 +1,14 @@
+<audio id="bgm" loop autoplay>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="correct">
+  <source src="https://www.soundjay.com/button/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="wrong">
+  <source src="https://www.soundjay.com/button/sounds/button-10.mp3" type="audio/mpeg">
+</audio>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -133,67 +144,39 @@ button{
 </div>
 
 </body>
-            
-<script>
+</html>
 let level = Number(localStorage.getItem("level")) || 1;
-let stars = Number(localStorage.getItem("stars")) || 3;
-let waitTimer;
+let stars = 3;
+const maxLevel = 150;
 
 function load(){
   document.getElementById("lvl").innerText = level;
   document.getElementById("stars").innerText = "⭐".repeat(stars);
-  q.innerHTML="";
   ans.value="";
+  q.innerHTML="";
   clearTimeout(waitTimer);
 
-  if(level > 100){
-    q.innerHTML = "🎉 YOU ARE A BRAIN MASTER!";
+  if(level > maxLevel){
+    q.innerHTML = "🎉 You are a Brain Master!";
     return;
   }
 
+  // Tricky / Hard logic from level 1
   if(level % 20 === 0){
-    q.innerHTML = "Don't touch anything for 3 seconds";
+    q.innerHTML = "Don't touch anything for 3 sec!";
     waitTimer = setTimeout(pass,3000);
   }
   else if(level % 15 === 0){
-    q.innerHTML = "Tap the word <span onclick='pass()'>THIS</span>, not the button";
+    q.innerHTML = "Tap the word <span onclick='pass()'>CLICKME</span>, not the button";
   }
   else if(level % 10 === 0){
-    q.innerHTML = "Type the wrong answer";
+    q.innerHTML = "Type a wrong answer!";
+  }
+  else if(level % 7 === 0){
+    q.innerHTML = `Drag the pink box to green box`;
+    dragArea.classList.remove("hidden");
   }
   else{
-    q.innerHTML = `What is ${level}+${level}?`;
+    q.innerHTML = `What is ${level} + ${level*2}?`; // tricky math
   }
 }
-
-function check(){
-  if(level % 10 === 0 && ans.value != level*2) pass();
-  else if(ans.value == level*2) pass();
-  else wrong();
-}
-
-function hint(){
-  if(stars > 0){
-    stars--;
-    alert("Think opposite 😏");
-    localStorage.setItem("stars",stars);
-    load();
-  } else {
-    alert("No hints left!");
-  }
-}
-
-function wrong(){
-  document.body.style.animation="shake .3s";
-  setTimeout(()=>document.body.style.animation="",300);
-  alert("❌ Brain Failed!");
-}
-
-function pass(){
-  level++;
-  localStorage.setItem("level",level);
-  load();
-}
-
-load();
-</script></html>
