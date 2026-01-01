@@ -180,3 +180,24 @@ function load(){
     q.innerHTML = `What is ${level} + ${level*2}?`; // tricky math
   }
 }
+function check(){
+  if(level % 10 === 0 && ans.value != level*2){
+    pass();
+    document.getElementById("correct").play();
+  }
+  else if(ans.value == level*2){
+    pass();
+    document.getElementById("correct").play();
+  }
+  else{
+    wrong();
+    document.getElementById("wrong").play();
+  }
+}
+
+function wrong(){
+  document.body.style.animation="shake .3s";
+  setTimeout(()=>document.body.style.animation="",300);
+  alert("❌ Brain Failed!");
+  document.getElementById("wrong").play();
+}
