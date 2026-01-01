@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Brain Out Web Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: 'Comic Sans MS', Arial;
+  background: #ffeaa7;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.game{
+  background:#fff;
+  width:90%;
+  max-width:420px;
+  padding:20px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+.level{font-size:14px;}
+.question{font-size:22px;margin:15px 0;}
+
+button{
+  background:#6c5ce7;
+  color:white;
+  border:none;
+  border-radius:12px;
+  padding:12px 20px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+input{
+  padding:10px;
+  border-radius:10px;
+  border:2px solid #ccc;
+  width:80%;
+  font-size:16px;
+}
+
+#timer{
+  font-size:16px;
+  color:#d63031;
+}
+
+.drag-box{
+  width:80px;
+  height:80px;
+  background:#fd79a8;
+  border-radius:15px;
+  margin:10px auto;
+}
+
+.target{
+  width:100px;
+  height:100px;
+  border:3px dashed #00b894;
+  margin:10px auto;
+}
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <div class="level">Level <span id="lvl"></span> / 100</div>
+  <div id="timer"></div>
+  <div class="question" id="q"></div>
+
+  <input id="ans">
+  <br><br>
+
+  <div id="dragArea" class="hidden">
+    <div class="drag-box" draggable="true" id="drag"></div>
+    <div class="target" id="target"></div>
+  </div>
+
+  <button onclick="check()">OK</button>
+</div>
+
+<script>
+let level = localStorage.getItem("level") || 1;
+let time, timerInt;
+
+const q = document.getElementById("q");
+const ans = document.getElementById("ans");
+const timer = document.getElementById("timer");
+const dragArea = document.getElementById("dragArea");
+
+document.getElementById("lvl").innerText = level;
+
+function load(){
+  document.getElementById("lvl").innerText = level;
+  ans.value="";
+  timer.innerText="";
+  dragArea.classList.add("hidden");
+  clearInterval(timerInt);
+
+  if(level>100){
+    q.innerHTML="🎉 Finished All Levels!";
+    return;
+  }
+
+  if(level%15===0){
+    q.innerText="Drag the pink box into green box";
+    dragArea.classList.remove("hidden");
+  }
+  else if(level%10===0){
+    q.innerText="Answer within 5 seconds!";
+    startTimer(5);
+  }
+  else if(level%5===0){
+    q.innerText="Type nothing and press OK";
+  }
+  else{
+    q.innerText=`What is ${level}+${level}?`;
+  }
+}
+
+function check(){
+  if(level%5===0 && ans.value==="") pass();
+  else if(ans.value==level*2) pass();
+  else alert("❌ Wrong!");
+}
+
+function pass(){
+  level++;
+  localStorage.setItem("level",level);
+  load();
+}
+
+/* TIMER */
+function startTimer(t){
+  time=t;
+  timer.innerText="⏱ "+time;
+  timerInt=setInterval(()=>{
+    time--;
+    timer.innerText="⏱ "+time;
+    if(time<=0){
+      clearInterval(timerInt);
+      alert("⏰ Time Up!");
+      load();
+    }
+  },1000);
+}
+
+/* DRAG */
+document.getElementById("drag").ondragstart=e=>{
+  e.dataTransfer.setData("x","go");
+}
+document.getElementById("target").ondragover=e=>e.preventDefault();
+document.getElementById("target").ondrop=e=>{
+  pass();
+}
+
+/* START */
+load();
+</script>
+
+</body>
+</html>
