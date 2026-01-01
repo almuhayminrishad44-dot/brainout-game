@@ -1,14 +1,3 @@
-<audio id="bgm" loop autoplay>
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-</audio>
-
-<audio id="correct">
-  <source src="https://www.soundjay.com/button/sounds/button-3.mp3" type="audio/mpeg">
-</audio>
-
-<audio id="wrong">
-  <source src="https://www.soundjay.com/button/sounds/button-10.mp3" type="audio/mpeg">
-</audio>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,9 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 body{
   margin:0;
   font-family:'Comic Sans MS', Arial;
@@ -77,7 +64,6 @@ input{
   font-size:16px;
   border-radius:15px;
   border:2px solid #dfe6e9;
-  outline:none;
 }
 
 .buttons{
@@ -95,20 +81,8 @@ button{
   cursor:pointer;
 }
 
-.ok-btn{
-  background:#00b894;
-  color:white;
-}
-
-.hint-btn{
-  background:#ffeaa7;
-  color:#2d3436;
-}
-
-.ok-btn:active,
-.hint-btn:active{
-  transform:scale(.95);
-}
+.ok-btn{background:#00b894;color:white;}
+.hint-btn{background:#ffeaa7;color:#2d3436;}
 
 .footer{
   margin-top:15px;
@@ -121,83 +95,95 @@ button{
 
 <body>
 
+<audio id="bgm" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop autoplay></audio>
+<audio id="correct" src="https://www.soundjay.com/button/sounds/button-3.mp3"></audio>
+<audio id="wrong" src="https://www.soundjay.com/button/sounds/button-10.mp3"></audio>
+
 <div class="game-card">
   <div class="top-bar">
     <div class="level-badge">Level <span id="lvl">1</span></div>
     <div class="stars" id="stars">⭐⭐⭐</div>
   </div>
 
-  <div class="question" id="q">
-    What is 1 + 1 ?
-  </div>
+  <div class="question" id="q"></div>
 
-  <input id="ans" placeholder="Type your answer">
+  <input id="ans" placeholder="Your answer">
 
   <div class="buttons">
     <button class="hint-btn" onclick="hint()">💡 Hint</button>
     <button class="ok-btn" onclick="check()">OK</button>
   </div>
 
-  <div class="footer">
-    Mind Blow © 2026
-  </div>
+  <div class="footer">Mind Blow © 2026</div>
 </div>
 
-</body>
-</html>
+<script>
 let level = Number(localStorage.getItem("level")) || 1;
-let stars = 3;
+let stars = Number(localStorage.getItem("stars")) || 3;
 const maxLevel = 150;
 
 function load(){
   document.getElementById("lvl").innerText = level;
   document.getElementById("stars").innerText = "⭐".repeat(stars);
-  ans.value="";
-  q.innerHTML="";
-  clearTimeout(waitTimer);
+  document.getElementById("ans").value = "";
+  document.getElementById("q").innerText = "";
 
   if(level > maxLevel){
-    q.innerHTML = "🎉 You are a Brain Master!";
+    document.getElementById("q").innerText = "🎉 You are a Brain Master!";
     return;
   }
 
-  // Tricky / Hard logic from level 1
   if(level % 20 === 0){
-    q.innerHTML = "Don't touch anything for 3 sec!";
-    waitTimer = setTimeout(pass,3000);
+    document.getElementById("q").innerText = "Don't touch anything for 3 sec!";
+    setTimeout(pass, 3000);
   }
   else if(level % 15 === 0){
-    q.innerHTML = "Tap the word <span onclick='pass()'>CLICKME</span>, not the button";
+    document.getElementById("q").innerHTML = `Tap the word <span onclick='pass()' style="color:#d63031;cursor:pointer;">CLICK ME</span>`;
   }
   else if(level % 10 === 0){
-    q.innerHTML = "Type a wrong answer!";
-  }
-  else if(level % 7 === 0){
-    q.innerHTML = `Drag the pink box to green box`;
-    dragArea.classList.remove("hidden");
+    document.getElementById("q").innerText = "Type a wrong answer!";
   }
   else{
-    q.innerHTML = `What is ${level} + ${level*2}?`; // tricky math
+    document.getElementById("q").innerText = `What is ${level}+${level*2}?`;
   }
 }
+
 function check(){
-  if(level % 10 === 0 && ans.value != level*2){
+  let ans = document.getElementById("ans").value;
+  if(level % 10 === 0 && ans != level*2){
     pass();
     document.getElementById("correct").play();
-  }
-  else if(ans.value == level*2){
+  } else if(ans == level*2){
     pass();
     document.getElementById("correct").play();
-  }
-  else{
+  } else {
     wrong();
-    document.getElementById("wrong").play();
   }
 }
 
 function wrong(){
-  document.body.style.animation="shake .3s";
-  setTimeout(()=>document.body.style.animation="",300);
-  alert("❌ Brain Failed!");
+  alert("❌ Try Again!");
   document.getElementById("wrong").play();
 }
+
+function hint(){
+  if(stars > 0){
+    stars--;
+    localStorage.setItem("stars", stars);
+    alert("Think differently 😏");
+    load();
+  } else alert("No hints left!");
+}
+
+function pass(){
+  level++;
+  localStorage.setItem("level", level);
+  localStorage.setItem("stars", stars);
+  load();
+}
+
+load();
+</script>
+
+</body>
+</html>
